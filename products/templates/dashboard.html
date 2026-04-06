@@ -1,0 +1,418 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+* { box-sizing: border-box; }
+
+/* WRAPPER */
+.dashboard-wrapper {
+    max-width: 1350px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* HEADER */
+.dashboard-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.dashboard-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #5c3737;
+}
+
+.top-actions a {
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-left: 8px;
+    background: linear-gradient(to right, #7a4e4e, #5c3737);
+    color: white;
+}
+
+/* ===============================
+   SMALL CLEAN SUMMARY CARDS
+=================================*/
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    background: white;
+    padding: 18px 20px;
+    border-radius: 10px;
+    border: 1px solid #d3aeae;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: 0.3s ease;
+}
+
+.summary-card:hover {
+    box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+    transform: translateY(-3px);
+}
+
+.card-left {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-title {
+    font-size: 12px;
+    color: #777;
+}
+
+.summary-value {
+    font-size: 20px;
+    font-weight: 600;
+    color: #5c3737;
+    margin-top: 4px;
+}
+
+.card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
+    background: linear-gradient(to right, #7a4e4e, #5c3737);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 16px;
+}
+
+/* ===============================
+   TABLE CARD
+=================================*/
+.table-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    overflow: hidden;
+}
+
+/* TABLE HEADER */
+.table-header {
+    padding: 16px 20px;
+    background: linear-gradient(to right, #7a4e4e, #5c3737);
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.search-input,
+.category-select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: none;
+    font-size: 12px;
+}
+
+/* TABLE */
+.table-responsive { overflow-x: auto; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+th {
+    background: #faf6f6;
+    padding: 12px;
+    font-size: 12px;
+    color: #6b4b4b;
+    text-align: left;
+}
+
+td {
+    padding: 12px;
+    font-size: 13px;
+    border-top: 1px solid #eee;
+    vertical-align: middle;
+}
+
+tr:hover { background: #fcf9f9; }
+
+.product-img, .color-img {
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.product-img {
+    width: 55px;
+    border-radius: 6px;
+}
+
+.color-img {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+}
+
+.product-img:hover,
+.color-img:hover {
+    transform: scale(1.05);
+}
+
+/* COLOR BADGE */
+.color-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f3eaea;
+    padding: 4px 7px;
+    border-radius: 6px;
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+/* IMAGE MODAL */
+.image-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.image-modal img {
+    max-width: 500px;
+    max-height: 80vh;
+    border-radius: 10px;
+}
+
+.image-modal.active {
+    display: flex;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .summary-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Add gap under title */
+    .dashboard-title {
+        padding-bottom: 10px;
+        width: 100%;
+        text-align: center;
+    }
+
+    /* Stack header properly */
+    .dashboard-top {
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* Center buttons */
+    .top-actions {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .top-actions a {
+        margin-left: 0;
+    }
+
+}
+</style>
+
+<div class="dashboard-wrapper">
+
+    <!-- HEADER -->
+    <div class="dashboard-top">
+        <div class="dashboard-title">Admin Dashboard</div>
+        <div class="top-actions">
+            <a href="{% url 'add_product' %}">Add Product</a>
+            <a href="{% url 'trash' %}">Trash</a>
+            <a href="{% url 'logout' %}" onclick="return confirm('Logout?')">Logout</a>
+        </div>
+    </div>
+
+    <!-- SUMMARY CARDS -->
+    <div class="summary-grid">
+
+        <div class="summary-card">
+            <div class="card-left">
+                <div class="summary-title">Total Products</div>
+                <div class="summary-value">{{ total_products }}</div>
+            </div>
+            <div class="card-icon">
+                <i class="fa-solid fa-box"></i>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="card-left">
+                <div class="summary-title">Designer</div>
+                <div class="summary-value">{{ designer_count }}</div>
+            </div>
+            <div class="card-icon">
+                <i class="fa-solid fa-crown"></i>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="card-left">
+                <div class="summary-title">Regular</div>
+                <div class="summary-value">{{ regular_count }}</div>
+            </div>
+            <div class="card-icon">
+                <i class="fa-solid fa-shirt"></i>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="card-left">
+                <div class="summary-title">Casual</div>
+                <div class="summary-value">{{ casual_count }}</div>
+            </div>
+            <div class="card-icon">
+                <i class="fa-solid fa-person-walking"></i>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-card">
+        <div class="table-header">
+            <div>Product Management</div>
+            <div>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search...">
+                <select id="categoryFilter" class="category-select">
+                    <option value="">All</option>
+                    <option value="designer">Designer</option>
+                    <option value="regular">Regular</option>
+                    <option value="casual">Casual</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table id="productTable">
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Main Image</th>
+                    <th>Colors</th>
+                    <th>Actions</th>
+                </tr>
+
+                {% for product in products %}
+                <tr>
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category|title }}</td>
+                    <td>₹{{ product.price }}</td>
+
+                    <td>
+                        {% if product.main_image %}
+                            <img src="{{ product.main_image.url }}" class="product-img preview-img">
+                        {% else %} - {% endif %}
+                    </td>
+
+                    <td>
+                        {% for color in product.color_variants.all %}
+                            <div class="color-badge">
+                                <img src="{{ color.color_image.url }}" class="color-img preview-img">
+                                {{ color.color_name }}
+                            </div>
+                        {% empty %} - {% endfor %}
+                    </td>
+
+                    <td>
+                        <a href="{% url 'edit_product' product.id %}">Edit</a> |
+                        <a href="{% url 'delete_product' product.id %}" onclick="return confirm('Move to Trash?')">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6">No products available.</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- IMAGE MODAL -->
+<div class="image-modal" id="imageModal">
+    <img id="modalImage">
+</div>
+
+<script>
+/* IMAGE POPUP */
+const modal = document.getElementById("imageModal");
+const modalImg = document.getElementById("modalImage");
+
+document.querySelectorAll(".preview-img").forEach(img => {
+    img.addEventListener("click", function() {
+        modal.classList.add("active");
+        modalImg.src = this.src;
+    });
+});
+
+modal.addEventListener("click", function() {
+    modal.classList.remove("active");
+});
+</script>
+<script>
+/* SEARCH + CATEGORY FILTER */
+
+const searchInput = document.getElementById("searchInput");
+const categoryFilter = document.getElementById("categoryFilter");
+const table = document.getElementById("productTable");
+const rows = table.getElementsByTagName("tr");
+
+function filterTable() {
+    const searchValue = searchInput.value.toLowerCase();
+    const categoryValue = categoryFilter.value.toLowerCase();
+
+    for (let i = 1; i < rows.length; i++) { // skip header row
+        const name = rows[i].cells[0]?.textContent.toLowerCase();
+        const category = rows[i].cells[1]?.textContent.toLowerCase();
+
+        let matchesSearch = name.includes(searchValue);
+        let matchesCategory = categoryValue === "" || category === categoryValue;
+
+        if (matchesSearch && matchesCategory) {
+            rows[i].style.display = "";
+        } else {
+            rows[i].style.display = "none";
+        }
+    }
+}
+
+searchInput.addEventListener("keyup", filterTable);
+categoryFilter.addEventListener("change", filterTable);
+</script>
+{% endblock %}

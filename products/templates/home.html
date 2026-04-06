@@ -1,0 +1,388 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% load static %}
+
+
+<style>
+    /* ===============================
+   TITLE SECTION WITH BG IMAGE
+=================================*/
+    body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #fff6f8, #f9f3ff);
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .collection-header {
+        position: relative;
+        background: url('{% static "images/bg.jpg" %}') center/cover no-repeat;
+        padding: 10px;
+        margin: 20px 0;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .collection-header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(122, 78, 78, 0.85);
+        /* Transparent overlay */
+    }
+
+    .collection-title {
+        position: relative;
+        font-size: 32px;
+        font-weight: 700;
+        color: #fff;
+        text-align: center;
+        z-index: 2;
+        letter-spacing: 1px;
+    }
+
+    /* ===============================
+   PRODUCT GRID
+=================================*/
+
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 18px;
+    }
+
+    /* ===============================
+   PRODUCT CARD
+=================================*/
+
+    .product-card {
+        background: #fff;
+        border-radius: 14px;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        border: 1px solid #cebcbc;
+    }
+
+    .product-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ===============================
+   IMAGE
+=================================*/
+
+    .product-image {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 8/9;
+        overflow: hidden;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: 0.4s ease;
+    }
+
+    .product-card:hover img {
+        transform: scale(1.06);
+    }
+
+    /* ===============================
+   WISHLIST
+=================================*/
+
+    .wishlist-icon {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        width: 25px;
+        height: 25px;
+        background: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: 0.3s ease;
+        padding: 1px;
+    }
+
+    .wishlist-icon:hover {
+        transform: scale(1.1);
+    }
+
+    .wishlist-icon i {
+        font-size: 18px;
+        color: #7a4e4e;
+    }
+
+    .wishlist-icon i.fa-solid {
+        color: #e63946;
+    }
+
+    /* ===============================
+   PRODUCT INFO
+=================================*/
+
+    .product-info {
+        padding: 18px;
+        text-align: center;
+    }
+
+    .product-info h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .product-price {
+        font-size: 15px;
+        font-weight: 600;
+        color: #7a4e4e;
+    }
+
+    /* ===============================
+   FOOTER STYLE BUTTON
+=================================*/
+
+    .view-btn {
+        margin-top: auto;
+        display: block;
+        width: 100%;
+        padding: 14px 0;
+        background: linear-gradient(to right, #7a4e4e, #5c3737);
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        text-align: center;
+        transition: 0.3s ease;
+    }
+
+    .view-btn:hover {
+        background: linear-gradient(to right, #5c3737, #7a4e4e);
+    }
+
+    /* ===============================
+   RESPONSIVE
+=================================*/
+
+    /* ===============================
+   RESPONSIVE FIXED CLEAN VERSION
+=================================*/
+
+    /* 4 Cards */
+    @media (max-width: 1400px) {
+        .product-grid {
+            grid-template-columns: repeat(5, 1fr);
+        }
+    }
+
+    /* 3 Cards */
+    @media (max-width: 1200px) {
+        .product-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    /* 2 Cards - Tablet & Mobile */
+    @media (max-width: 768px) {
+
+        .collection-header {
+            padding: 25px 10px;
+            margin: 1px 0;
+            margin-bottom: 20px;
+        }
+
+        .collection-title {
+            font-size: 20px;
+        }
+
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .product-info {
+            padding: 12px;
+        }
+
+        .product-info h3 {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .product-price {
+            font-size: 13px;
+        }
+
+        .view-btn {
+            font-size: 12px;
+            padding: 10px 0;
+        }
+    }
+
+    /* Ultra Small (Still 2 cards, no cutting) */
+    @media (max-width: 380px) {
+        .product-grid {
+            gap: 10px;
+        }
+
+        .product-info h3 {
+            font-size: 13px;
+        }
+
+        .product-price {
+            font-size: 12px;
+        }
+    }
+
+    /* ===============================
+   EMPTY STATE DESIGN
+=================================*/
+
+    .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 80px 20px;
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        background: rgba(122, 78, 78, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .empty-icon i {
+        font-size: 32px;
+        color: #7a4e4e;
+    }
+
+    .empty-state h3 {
+        font-size: 20px;
+        margin-bottom: 8px;
+        font-weight: 600;
+    }
+
+    .empty-state p {
+        font-size: 14px;
+        color: #777;
+    }
+
+    /* Mobile polish */
+    @media (max-width: 768px) {
+        .empty-state {
+            padding: 50px 15px;
+        }
+
+        .empty-icon {
+            width: 65px;
+            height: 65px;
+        }
+
+        .empty-icon i {
+            font-size: 24px;
+        }
+
+        .empty-state h3 {
+            font-size: 18px;
+        }
+    }
+</style>
+
+
+<!-- ===============================
+     TITLE WITH BACKGROUND
+=================================-->
+
+<div class="collection-header">
+    <h2 class="collection-title">
+        {% if category %}
+        {{ category|title }} Collection
+        {% else %}
+        Our Collection
+        {% endif %}
+    </h2>
+</div>
+
+
+<div class="product-grid">
+
+    {% for product in products %}
+
+    <div class="product-card">
+
+        <div class="product-image">
+            <a href="{% url 'product_detail' product.id %}">
+                <img src="{{ product.main_image.url }}" alt="{{ product.name }}">
+            </a>
+
+            <a href="{% if product.id in wishlist %}
+                        {% url 'remove_from_wishlist' product.id %}
+                     {% else %}
+                        {% url 'add_to_wishlist' product.id %}
+                     {% endif %}" class="wishlist-icon">
+
+                <i class="fa {% if product.id in wishlist %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+
+            </a>
+        </div>
+
+        <div class="product-info">
+            <h3>{{ product.name|truncatechars:25 }}</h3>
+            <div class="product-price">₹{{ product.price }}</div>
+        </div>
+
+        <!-- Footer Button -->
+        <a href="{% url 'product_detail' product.id %}" class="view-btn">
+            VIEW DETAILS
+        </a>
+
+    </div>
+
+    {% empty %}
+    <div class="empty-state">
+        <div class="empty-icon">
+            <i class="fa-solid fa-box-open"></i>
+        </div>
+        <h3>No Products Found</h3>
+        <p>We couldn’t find any products in this collection right now.</p>
+    </div>
+    {% endfor %}
+
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Restore scroll position
+        if (localStorage.getItem("scrollPosition")) {
+            window.scrollTo(0, localStorage.getItem("scrollPosition"));
+            localStorage.removeItem("scrollPosition");
+        }
+
+        // Save scroll position when clicking wishlist
+        document.querySelectorAll(".wishlist-icon").forEach(function (icon) {
+            icon.addEventListener("click", function () {
+                localStorage.setItem("scrollPosition", window.scrollY);
+            });
+        });
+
+    });
+</script>
+{% endblock %}

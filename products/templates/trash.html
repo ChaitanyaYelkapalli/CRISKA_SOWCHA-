@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% block content %}
+{% load static %}
+
+<style>
+
+/* ===============================
+   PAGE WRAPPER
+=================================*/
+.trash-wrapper {
+    padding: 40px 30px;
+    background: linear-gradient(135deg, #fff6f8, #f9f3ff);
+    min-height: 100vh;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+/* ===============================
+   HEADER
+=================================*/
+.trash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.trash-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #5c3737;
+}
+
+.back-btn {
+    background: linear-gradient(to right, #7a4e4e, #5c3737);
+    color: white;
+    padding: 9px 16px;
+    font-size: 13px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: 0.3s ease;
+}
+
+.back-btn:hover {
+    opacity: 0.9;
+}
+
+/* ===============================
+   TABLE CARD
+=================================*/
+.trash-box {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+}
+
+/* HEADER BAR */
+.table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(to right, #7a4e4e, #5c3737);
+    color: white;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.table-title {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.delete-selected-btn {
+    display: none;
+    background: white;
+    color: #7a4e4e;
+    border: none;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* ===============================
+   TABLE WRAPPER
+=================================*/
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Scrollbar */
+.table-responsive::-webkit-scrollbar {
+    height: 6px;
+}
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #d6bcbc;
+    border-radius: 10px;
+}
+
+/* ===============================
+   TABLE STYLE
+=================================*/
+table {
+    min-width: 900px; /* Increased because of image column */
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    background: #faf6f6;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b4b4b;
+    padding: 14px;
+    text-align: left;
+}
+
+td {
+    padding: 14px;
+    font-size: 13px;
+    border-top: 1px solid #f0eaea;
+    vertical-align: middle;
+}
+
+tr:hover {
+    background: #fcf9f9;
+}
+
+/* ===============================
+   PRODUCT IMAGE
+=================================*/
+.product-img {
+    width: 55px;
+    height: 55px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #eee;
+}
+
+/* ACTION LINKS */
+.action-links a {
+    font-size: 12px;
+    margin-right: 10px;
+    text-decoration: none;
+}
+
+.restore-btn { color: #2a9d8f; }
+.delete-btn { color: #d62828; }
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 14px;
+    color: #6b4b4b;
+}
+
+/* ===============================
+   RESPONSIVE
+=================================*/
+@media (max-width: 768px) {
+
+    .trash-wrapper {
+        padding: 20px 15px;
+    }
+
+    .trash-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .delete-selected-btn {
+        width: 100%;
+    }
+
+}
+
+</style>
+
+<div class="trash-wrapper">
+
+    <!-- HEADER -->
+    <div class="trash-header">
+        <div class="trash-title">
+            Trash (Archived Products)
+        </div>
+
+        <a href="{% url 'dashboard' %}" class="back-btn">
+            ← Back to Dashboard
+        </a>
+    </div>
+
+    <form method="post" action="{% url 'bulk_delete' %}">
+    {% csrf_token %}
+
+    <div class="trash-box">
+
+        <!-- TOP BAR -->
+        <div class="table-header">
+            <div class="table-title">
+                Total Products: {{ products|length }}
+            </div>
+
+            <button type="submit"
+                    id="deleteSelectedBtn"
+                    class="delete-selected-btn"
+                    onclick="return confirm('Delete selected products permanently?')">
+                Delete Selected Permanently
+            </button>
+        </div>
+
+        <!-- SCROLLABLE TABLE -->
+        <div class="table-responsive">
+            <table>
+                <tr>
+                    <th><input type="checkbox" id="selectAll"></th>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Archived</th>
+                    <th>Actions</th>
+                </tr>
+
+                {% for product in products %}
+                <tr>
+                    <td>
+                        <input type="checkbox"
+                               class="product-checkbox"
+                               name="selected_products"
+                               value="{{ product.id }}">
+                    </td>
+
+                    <td>
+                        {% if product.main_image %}
+                            <img src="{{ product.main_image.url }}"
+                                 alt="{{ product.name }}"
+                                 class="product-img">
+                        {% else %}
+                            <img src="{% static 'images/no-image.png' %}"
+                                 class="product-img">
+                        {% endif %}
+                    </td>
+
+                    <td>{{ product.name }}</td>
+                    <td>{{ product.category }}</td>
+                    <td>₹{{ product.price }}</td>
+                    <td>{{ product.archived_date }}</td>
+
+                    <td class="action-links">
+                        <a href="{% url 'restore_product' product.id %}" class="restore-btn">
+                            Restore
+                        </a>
+                        <a href="{% url 'permanent_delete' product.id %}"
+                           class="delete-btn"
+                           onclick="return confirm('Are you sure?')">
+                           Delete
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            Trash is empty 🗑️
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+    </div>
+
+    </form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const selectAll = document.getElementById("selectAll");
+    const checkboxes = document.querySelectorAll(".product-checkbox");
+    const deleteBtn = document.getElementById("deleteSelectedBtn");
+
+    function toggleDeleteButton() {
+        let anyChecked = false;
+        checkboxes.forEach(cb => {
+            if (cb.checked) anyChecked = true;
+        });
+        deleteBtn.style.display = anyChecked ? "inline-block" : "none";
+    }
+
+    selectAll.addEventListener("change", function () {
+        checkboxes.forEach(cb => cb.checked = selectAll.checked);
+        toggleDeleteButton();
+    });
+
+    checkboxes.forEach(cb => {
+        cb.addEventListener("change", toggleDeleteButton);
+    });
+
+});
+</script>
+
+{% endblock %}

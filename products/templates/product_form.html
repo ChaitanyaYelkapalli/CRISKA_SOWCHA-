@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+* {
+    box-sizing: border-box;
+}
+ body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(135deg, #fff6f8, #f9f3ff);
+        font-family: 'Poppins', sans-serif;
+    }
+/* ===============================
+   PAGE WRAPPER
+=================================*/
+.page-wrapper {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+/* ===============================
+   HEADER
+=================================*/
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #5c3737;
+}
+
+.back-btn {
+    text-decoration: none;
+    background: linear-gradient(to right, #7a4e4e, #5c3737);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+/* ===============================
+   GRID LAYOUT
+=================================*/
+.main-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+/* ===============================
+   CARD BOX
+=================================*/
+.card-box {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    overflow: hidden;
+}
+
+.card-header-left {
+    background: linear-gradient(to right, #7a4e4e, #5c3737);
+    color: white;
+    padding: 15px 20px;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.card-header-right {
+    background: #f7f2f2;
+    color: #5c3737;
+    padding: 15px 20px;
+    font-weight: 600;
+    font-size: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+/* ===============================
+   FORM STYLING
+=================================*/
+form p {
+    margin-bottom: 15px;
+}
+
+form label {
+    font-size: 13px;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.required-star {
+    color: red;
+    margin-left: 4px;
+}
+
+form input,
+form select,
+form textarea {
+    width: 100%;
+    padding: 9px 11px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: 0.3s ease;
+}
+
+form textarea {
+    min-height: 90px;
+}
+
+form input:focus,
+form select:focus,
+form textarea:focus {
+    outline: none;
+    border-color: #7a4e4e;
+    box-shadow: 0 0 0 2px rgba(122,78,78,0.1);
+}
+
+/* ===============================
+   FIX CHECKBOX (SIZES)
+=================================*/
+form input[type="checkbox"] {
+    width: auto !important;
+    height: auto;
+    margin-right: 6px;
+}
+
+form p:has(input[type="checkbox"]) {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+/* Make Description smaller */
+textarea[name="description"] {
+    min-height: 60px;
+    height: 60px;
+}
+/* ===============================
+   COLOR VARIANT
+=================================*/
+.color-form {
+    border: 1px solid #e8dcdc !important;
+    padding: 15px !important;
+    margin-bottom: 12px !important;
+    border-radius: 8px;
+    background: #fff9f9;
+}
+
+/* ===============================
+   BUTTONS
+=================================*/
+.add-btn {
+    background: #7a4e4e;
+    color: white;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    border: none;
+    cursor: pointer;
+}
+
+.remove-btn {
+    background: #d62828;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    border: none;
+    cursor: pointer;
+}
+
+.save-btn {
+    margin-top: 20px;
+    background: linear-gradient(to right, #7a4e4e, #5c3737);
+    color: white;
+    padding: 9px 22px;
+    border-radius: 6px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+}
+
+/* ===============================
+   RESPONSIVE
+=================================*/
+@media (max-width: 900px) {
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .page-wrapper {
+        margin: 10px auto;
+        padding: 0 10px;
+    }
+}
+</style>
+
+<div class="page-wrapper">
+
+    <div class="page-header">
+        <div class="page-title">
+            {% if is_edit %}Edit Product{% else %}Add Product{% endif %}
+        </div>
+        <a href="{% url 'dashboard' %}" class="back-btn">← Back</a>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="main-grid">
+
+            <!-- LEFT SIDE -->
+            <div class="card-box">
+                <div class="card-header-left">
+                    Product Details
+                </div>
+                <div class="card-body">
+                    {% for field in form %}
+                        <p>
+                            <label>
+                                {{ field.label }}
+                                {% if field.field.required %}
+                                    <span class="required-star">*</span>
+                                {% endif %}
+                            </label>
+                            {{ field }}
+                        </p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- RIGHT SIDE -->
+            <div class="card-box">
+                <div class="card-header-right">
+                    Color Variants
+                </div>
+                <div class="card-body">
+
+                    {{ formset.management_form }}
+
+                    <div id="color-forms">
+                        {% for form in formset %}
+                            <div class="color-form">
+                                {{ form.id }}
+
+                                {{ form.color_name.label_tag }}
+                                {{ form.color_name }}
+                                <br><br>
+
+                                {{ form.color_image.label_tag }}
+                                {{ form.color_image }}
+                                <br><br>
+
+                                {% if form.instance.pk %}
+                                    {{ form.DELETE }} Delete
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <button type="button" onclick="addColor()" class="add-btn">
+                        + Add Color Variant
+                    </button>
+
+                </div>
+            </div>
+
+        </div>
+
+        <button type="submit" class="save-btn">
+            Save Product
+        </button>
+
+    </form>
+
+</div>
+
+<script>
+function addColor() {
+    const totalForms = document.getElementById('id_color_variants-TOTAL_FORMS');
+    const currentCount = parseInt(totalForms.value);
+    const formContainer = document.getElementById('color-forms');
+
+    const newForm = `
+        <div class="color-form">
+            <label>Color Name </label>
+            <input type="text" name="color_variants-${currentCount}-color_name">
+            <br><br>
+
+            <label>Color Image </label>
+            <input type="file" name="color_variants-${currentCount}-color_image">
+            <br><br>
+
+            <button type="button" class="remove-btn" onclick="removeNewColor(this)">
+                Remove
+            </button>
+        </div>
+    `;
+
+    formContainer.insertAdjacentHTML('beforeend', newForm);
+    totalForms.value = currentCount + 1;
+}
+
+function removeNewColor(button) {
+    const formDiv = button.closest('.color-form');
+    formDiv.remove();
+}
+</script>
+
+{% endblock %}
